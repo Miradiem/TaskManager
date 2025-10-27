@@ -1,0 +1,50 @@
+<div class="task-form">
+  <h2 mat-dialog-title>{{ getTitle() }}</h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="Enter task title">
+        <mat-error *ngIf="taskForm.get('title')?.hasError('required')">Title is required</mat-error>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('maxlength')">Title cannot exceed 200 characters</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" placeholder="Enter task description" rows="3"></textarea>
+        <mat-error *ngIf="taskForm.get('description')?.hasError('maxlength')">Description cannot exceed 1000 characters</mat-error>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width" *ngIf="isEditMode">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of statusOptions" [value]="status">
+              {{ TASK_STATUS_LABELS[status] }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="taskForm.get('status')?.hasError('required')">Status is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Due Date</mat-label>
+        <input matInput type="date" formControlName="dueDate">
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()" 
+      [disabled]="taskForm.invalid || isLoading"
+      class="submit-button">
+      <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+      <span *ngIf="!isLoading">{{ getSubmitButtonText() }}</span>
+    </button>
+  </mat-dialog-actions>
+</div>

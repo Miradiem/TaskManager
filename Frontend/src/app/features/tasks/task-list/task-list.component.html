@@ -1,0 +1,127 @@
+<div class="task-list-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h1>Task Manager</h1>
+      <div class="user-info">
+        <span>Welcome, {{ getCurrentUser() }}</span>
+        <button mat-button (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-container">
+        <div class="filters-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select [(value)]="selectedStatus">
+              <mat-option [value]="undefined">All Statuses</mat-option>
+              <mat-option *ngFor="let status of statusOptions" [value]="status">
+                {{ TASK_STATUS_LABELS[status] }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Due Date From</mat-label>
+            <input matInput type="date" [(ngModel)]="dueDateFrom">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Due Date To</mat-label>
+            <input matInput type="date" [(ngModel)]="dueDateTo">
+          </mat-form-field>
+        </div>
+
+        <div class="filter-buttons">
+          <button mat-raised-button color="primary" (click)="applyFilters()" class="filter-button">
+            <mat-icon>search</mat-icon>
+            <span>Filter</span>
+          </button>
+          
+          <button mat-stroked-button (click)="clearFilters()" class="clear-button">Clear</button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      <span>New Task</span>
+    </button>
+  </div>
+
+  <!-- Task List -->
+  <div class="tasks-container">
+    <mat-spinner *ngIf="isLoading" class="loading-spinner"></mat-spinner>
+    
+    <div *ngIf="!isLoading && tasks.length === 0" class="no-tasks">
+      <mat-icon>assignment</mat-icon>
+      <h3>No tasks found</h3>
+      <p>Create your first task to get started!</p>
+    </div>
+
+    <div *ngIf="!isLoading && tasks.length > 0" class="tasks-grid">
+      <mat-card *ngFor="let task of tasks" class="task-card">
+        <mat-card-header>
+          <mat-card-title>{{ task.title }}</mat-card-title>
+          <mat-card-subtitle>
+            <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+              {{ TASK_STATUS_LABELS[task.status] }}
+            </span>
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content *ngIf="task.description">
+          <p>{{ task.description }}</p>
+        </mat-card-content>
+
+        <mat-card-content *ngIf="task.dueDate">
+          <p><strong>Due:</strong> {{ task.dueDate | date:'short' }}</p>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button (click)="openEditDialog(task)">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+          </button>
+          <button mat-button color="warn" (click)="deleteTask(task)">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container" *ngIf="!isLoading && tasks.length > 0">
+    <div class="pagination-controls">
+      <button mat-icon-button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      
+      <span class="page-info">{{ currentPage }} of {{ totalPages }}</span>
+      
+      <button mat-icon-button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+    
+    <div class="page-size-selector">
+      <mat-form-field appearance="outline">
+        <mat-label>Items per page</mat-label>
+        <mat-select [value]="pageSize" (selectionChange)="onPageSizeChange($event.value)">
+          <mat-option *ngFor="let size of [5, 10, 25, 50]" [value]="size">
+            {{ size }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+</div>
